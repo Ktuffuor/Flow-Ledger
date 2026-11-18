@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlowLedger — Personal Expense & Budget Tracker</title>
+  <link rel="stylesheet" href="./styles/main.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-badge">FL</div>
+        <span>FlowLedger</span>
+        <span id="syncStatus" class="sync-pill">Local Device Mode</span>
+      </div>
+      <div class="header-controls">
+        <input type="month" id="monthFilter" title="Select Month" />
+        <select id="currencySelect" title="Currency">
+          <option value="GHS">GHS (₵)</option>
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="NGN">NGN (₦)</option>
+          <option value="KES">KES (KSh)</option>
+        </select>
+        <button id="themeToggle" class="btn-sm" title="Toggle Theme">Dark Mode</button>
+        <button id="openSetupBtn" class="btn-sm">Cloud Setup</button>
+        <button id="authBtn" class="btn-primary btn-sm hidden">Sign In</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="localModeBanner" class="setup-banner hidden">
+      <div>
+        <strong>Running in Local Browser Mode:</strong> Data is stored on this device. Add your free Firebase keys in <code>src/infrastructure/firebaseConfig.js</code> to sync across devices.
+      </div>
+      <button id="bannerSetupBtn" class="btn-primary btn-sm">Setup Guide</button>
+    </div>
+
+    <div id="authGate" class="auth-card hidden">
+      <h2>Sign in to Sync Your Budget</h2>
+      <p>Your expenses and monthly goals sync privately across your phone and laptop via your Google account.</p>
+      <button id="googleSignInBtn" class="btn-primary btn-full">Continue with Google</button>
+    </div>
+
+    <main id="appContent">
+      <section class="kpi-grid">
+        <div class="card">
+          <div class="kpi-label">Monthly Income</div>
+          <div id="kpiIncome" class="kpi-value val-income">GHS 0.00</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">Monthly Expenses</div>
+          <div id="kpiExpense" class="kpi-value val-expense">GHS 0.00</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">Net Balance</div>
+          <div id="kpiBalance" class="kpi-value">GHS 0.00</div>
+        </div>
+        <div class="card">
+          <div class="kpi-label">Savings Rate</div>
+          <div id="kpiSavings" class="kpi-value">0.0%</div>
+        </div>
+      </section>
+
+      <div class="main-grid">
+        <aside class="sidebar-stack">
+          <div class="card">
+            <div class="section-title">Log Transaction</div>
+            <div class="type-toggle">
+              <button type="button" id="btnTypeExpense" class="type-btn active-expense">Expense</button>
+              <button type="button" id="btnTypeIncome" class="type-btn">Income</button>
+            </div>
+            <form id="txForm">
+              <div class="form-group">
+                <label for="txAmount">Amount</label>
+                <input type="number" id="txAmount" step="0.01" min="0.01" placeholder="0.00" required />
+              </div>
+              <div class="form-group">
+                <label for="txCategory">Category</label>
+                <select id="txCategory" required></select>
+              </div>
+              <div class="form-group">
+                <label for="txDate">Date</label>
+                <input type="date" id="txDate" required />
+              </div>
+              <div class="form-group">
+                <label for="txMethod">Payment Method</label>
+                <select id="txMethod">
+                  <option value="Mobile Money">Mobile Money</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="txNote">Note (Optional)</label>
+                <input type="text" id="txNote" placeholder="e.g., Lunch, ECG prepaid, Salary" maxlength="80" />
+              </div>
+              <button type="submit" class="btn-primary btn-full">Save Transaction</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="section-title">
+              <span>Monthly Budgets</span>
+              <button id="openBudgetModalBtn" class="btn-sm">Edit Goals</button>
+            </div>
+            <div id="budgetList"></div>
+          </div>
+        </aside>
+
+        <section>
+          <div class="charts-grid">
+            <div class="card">
+              <div class="section-title">Spending by Category</div>
+              <div id="categoryChartContainer"></div>
+            </div>
+            <div class="card">
+              <div class="section-title">Daily Spending Trend</div>
+              <div id="dailyChartContainer"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">
+              <span>Transaction History</span>
+              <div class="toolbar-group">
+                <button id="exportCsvBtn" class="btn-sm">Export CSV</button>
+                <button id="exportJsonBtn" class="btn-sm">Backup JSON</button>
+                <button id="importJsonBtn" class="btn-sm">Restore JSON</button>
+                <input type="file" id="importFileInput" accept=".json" class="hidden" />
+              </div>
+            </div>
+
+            <div class="table-controls">
+              <input type="text" id="searchInput" placeholder="Search notes or categories..." />
+              <select id="filterCategory">
+                <option value="ALL">All Categories</option>
+              </select>
+              <select id="filterType">
+                <option value="ALL">All Types</option>
+                <option value="expense">Expenses Only</option>
+                <option value="income">Income Only</option>
+              </select>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Note</th>
+                    <th>Method</th>
+                    <th>Amount</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="txTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Budget Editor Modal -->
+  <div id="budgetModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="section-title">
+        <h3>Categories & Monthly Budget Goals</h3>
+        <button id="closeBudgetModalBtn" class="btn-sm">Close</button>
+      </div>
+      <div class="add-cat-row">
+        <input type="text" id="newCatName" placeholder="New category name" />
+        <input type="number" id="newCatBudget" placeholder="Monthly limit" min="0" step="10" />
+        <button id="addCatBtn" class="btn-primary btn-sm">Add</button>
+      </div>
+      <div id="budgetEditorRows"></div>
+      <div class="modal-footer">
+        <button id="saveBudgetsBtn" class="btn-primary">Save Budget Goals</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloud Setup Guide Modal -->
+  <div id="setupModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="section-title">
+        <h3>Free Cross-Device Cloud Sync Setup</h3>
+        <button id="closeSetupModalBtn" class="btn-sm">Close</button>
+      </div>
+      <ol>
+        <li>Go to <strong>console.firebase.google.com</strong>, create a free Spark project, and register a <strong>Web App</strong> to copy your <code>firebaseConfig</code>.</li>
+        <li>Open <code>src/infrastructure/firebaseConfig.js</code> in VS Code and paste your 6 config values.</li>
+        <li>In Firebase Console, enable <strong>Authentication &rarr; Google</strong> and create a <strong>Firestore Database</strong> with these Security Rules:
+<pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</pre>
+        </li>
+        <li>Upload the <code>flowledger</code> folder to <strong>Cloudflare Pages</strong> and add your <code>.pages.dev</code> domain under Firebase <strong>Authentication &rarr; Settings &rarr; Authorized domains</strong>.</li>
+      </ol>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
