@@ -1,0 +1,28 @@
+# Firebase & Environment Secrets
+.env
+.env.*
+src/infrastructure/firebaseConfig.local.js
+src/infrastructure/firebaseConfig.js
+
+# Firebase CLI & Emulator Cache
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Code Editors & IDEs (VS Code, JetBrains, etc.)
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Optional: Node / Build Tools (if you add npm or a bundler later)
+node_modules/
+dist/
+build/

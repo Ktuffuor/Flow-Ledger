@@ -1,4 +1,3 @@
-// Paste your free Firebase Web App config values below to enable cross-device sync
 export const firebaseConfig = {
   apiKey: "PASTE_YOUR_API_KEY_HERE",
   authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
