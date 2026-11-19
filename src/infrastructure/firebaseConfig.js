@@ -11,6 +11,6 @@ export const firebaseConfig = {
 export function isFirebaseConfigured() {
   return Boolean(
     firebaseConfig.apiKey &&
-    firebaseConfig.apiKey !== "AIzaSyAMv3ROqUfxkxInxREJiEa8aShQmyTjeZE"
+    firebaseConfig.apiKey !== "PASTE_YOUR_API_KEY_HERE"
   );
 }
