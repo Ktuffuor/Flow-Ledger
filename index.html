@@ -185,7 +185,32 @@
       </div>
     </div>
   </div>
-  
+
+  <!-- Cloud Setup Guide Modal -->
+  <div id="setupModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="section-title">
+        <h3>Free Cross-Device Cloud Sync Setup</h3>
+        <button id="closeSetupModalBtn" class="btn-sm">Close</button>
+      </div>
+      <ol>
+        <li>Go to <strong>console.firebase.google.com</strong>, create a free Spark project, and register a <strong>Web App</strong> to copy your <code>firebaseConfig</code>.</li>
+        <li>Open <code>src/infrastructure/firebaseConfig.js</code> in VS Code and paste your 6 config values.</li>
+        <li>In Firebase Console, enable <strong>Authentication &rarr; Google</strong> and create a <strong>Firestore Database</strong> with these Security Rules:
+<pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}</pre>
+        </li>
+        <li>Upload the <code>flowledger</code> folder to <strong>Cloudflare Pages</strong> and add your <code>.pages.dev</code> domain under Firebase <strong>Authentication &rarr; Settings &rarr; Authorized domains</strong>.</li>
+      </ol>
+    </div>
+  </div>
+
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

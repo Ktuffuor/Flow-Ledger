@@ -142,9 +142,9 @@ export class UIController {
     });
 
     // Setup Modal
-    this.el("openSetupBtn").addEventListener("click", () => this.el("setupModal").classList.add("open"));
-    this.el("bannerSetupBtn").addEventListener("click", () => this.el("setupModal").classList.add("open"));
-    this.el("closeSetupModalBtn").addEventListener("click", () => this.el("setupModal").classList.remove("open"));
+    this.el("openSetupBtn")?.addEventListener("click", () => this.el("setupModal")?.classList.add("open"));
+    this.el("bannerSetupBtn")?.addEventListener("click", () => this.el("setupModal")?.classList.add("open"));
+    this.el("closeSetupModalBtn")?.addEventListener("click", () => this.el("setupModal")?.classList.remove("open"));
 
     // Auth
     this.el("googleSignInBtn").addEventListener("click", () => this.firebaseRepo?.signInWithGoogle());
